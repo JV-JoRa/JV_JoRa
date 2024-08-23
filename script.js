@@ -4,7 +4,7 @@ let scoreDisplay = document.getElementById('score');
 
 let teacherPosition = 130;
 let score = 0;
-let gameSpeed = 60; // Päivitetty pelinopeus (fps)
+let gameSpeed = 60; // Pelinopeus (fps)
 let enemySpeed = 3;
 let enemies = [];
 
@@ -29,16 +29,18 @@ function createEnemy() {
 function moveEnemies() {
     enemies.forEach((enemy, index) => {
         let enemyTop = parseInt(enemy.style.top);
+        enemyTop += enemySpeed; // Kasvatetaan vihollisen top-arvoa
+
         if (enemyTop > 500) { // Jos vihollinen menee pelialueen ulkopuolelle
             gameArea.removeChild(enemy);
             enemies.splice(index, 1);
             score++;
             scoreDisplay.textContent = score;
             if (score % 5 === 0) {
-                enemySpeed++;
+                enemySpeed++; // Lisää vihollisten nopeutta joka viides piste
             }
         } else {
-            enemy.style.top = enemyTop + enemySpeed + 'px';
+            enemy.style.top = enemyTop + 'px'; // Päivitetään vihollisen sijainti
         }
     });
 }
@@ -63,6 +65,5 @@ function gameLoop() {
     setTimeout(gameLoop, 1000 / gameSpeed);
 }
 
-setInterval(createEnemy, 1000);
+setInterval(createEnemy, 1000); // Luo uusi vihollinen joka sekunti
 gameLoop();
-

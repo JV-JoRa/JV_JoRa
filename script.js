@@ -2,36 +2,45 @@ let teacher = document.getElementById('teacher');
 let gameArea = document.getElementById('gameArea');
 let scoreDisplay = document.getElementById('score');
 
-let teacherPosition = 130;
+let teacherPositionX = 50; // Opettajan lähtöpaikka vaakasuunnassa
+let teacherPositionY = 400; // Opettajan lähtöpaikka pystysuunnassa
+let teacherJumping = false;
+let teacherVelocityY = 0;
+let gravity = 0.5;
+let jumpStrength = -10;
+
 let score = 0;
 let gameSpeed = 60; // Pelinopeus (fps)
 let enemySpeed = 3;
 let enemies = [];
 
 document.addEventListener('keydown', function(event) {
-    if (event.key === 'ArrowLeft' && teacherPosition > 0) {
-        teacherPosition -= 10;
-    } else if (event.key === 'ArrowRight' && teacherPosition < 260) {
-        teacherPosition += 10;
+    if (event.key === 'ArrowLeft' && teacherPositionX > 0) {
+        teacherPositionX -= 10;
+    } else if (event.key === 'ArrowRight' && teacherPositionX < 260) {
+        teacherPositionX += 10;
+    } else if (event.key === ' ' && !teacherJumping) { // Välilyönti hypyn aloittamiseksi
+        teacherJumping = true;
+        teacherVelocityY = jumpStrength;
     }
-    teacher.style.left = teacherPosition + 'px';
+    teacher.style.left = teacherPositionX + 'px';
 });
 
 function createEnemy() {
     let enemy = document.createElement('div');
     enemy.classList.add('enemy');
-    enemy.style.left = Math.floor(Math.random() * 260) + 'px';
-    enemy.style.top = '0px'; // Asetetaan viholliselle alkuperäinen top-arvo
+    enemy.style.left = '300px'; // Vihollinen alkaa pelialueen oikealta laidalta
+    enemy.style.top = '400px'; // Vihollinen on maan tasalla
     gameArea.appendChild(enemy);
     enemies.push(enemy);
 }
 
 function moveEnemies() {
     enemies.forEach((enemy, index) => {
-        let enemyTop = parseInt(enemy.style.top);
-        enemyTop += enemySpeed; // Kasvatetaan vihollisen top-arvoa
+        let enemyLeft = parseInt(enemy.style.left);
+        enemyLeft -= enemySpeed; // Vihollinen liikkuu vasemmalle
 
-        if (enemyTop > 500) { // Jos vihollinen menee pelialueen ulkopuolelle
+        if (enemyLeft < -40) { // Jos vihollinen menee pelialueen ulkopuolelle
             gameArea.removeChild(enemy);
             enemies.splice(index, 1);
             score++;
@@ -40,9 +49,22 @@ function moveEnemies() {
                 enemySpeed++; // Lisää vihollisten nopeutta joka viides piste
             }
         } else {
-            enemy.style.top = enemyTop + 'px'; // Päivitetään vihollisen sijainti
+            enemy.style.left = enemyLeft + 'px'; // Päivitetään vihollisen sijainti
         }
     });
+}
+
+function updateTeacher() {
+    if (teacherJumping) {
+        teacherVelocityY += gravity; // Sovelletaan painovoimaa hyppäävään opettajaan
+        teacherPositionY += teacherVelocityY;
+        if (teacherPositionY >= 400) { // Tarkistetaan, onko opettaja maan tasalla
+            teacherPositionY = 400;
+            teacherJumping = false;
+            teacherVelocityY = 0;
+        }
+        teacher.style.top = teacherPositionY + 'px';
+    }
 }
 
 function checkCollision() {
@@ -61,9 +83,10 @@ function checkCollision() {
 
 function gameLoop() {
     moveEnemies();
+    updateTeacher();
     checkCollision();
     setTimeout(gameLoop, 1000 / gameSpeed);
 }
 
-setInterval(createEnemy, 1000); // Luo uusi vihollinen joka sekunti
+setInterval(createEnemy, 1500); // Luo uusi vihollinen joka 1,5 sekunti
 gameLoop();

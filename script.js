@@ -4,7 +4,7 @@ let scoreDisplay = document.getElementById('score');
 
 let teacherPosition = 130;
 let score = 0;
-let gameSpeed = 5;
+let gameSpeed = 60; // Päivitetty pelinopeus (fps)
 let enemySpeed = 3;
 let enemies = [];
 
@@ -21,6 +21,7 @@ function createEnemy() {
     let enemy = document.createElement('div');
     enemy.classList.add('enemy');
     enemy.style.left = Math.floor(Math.random() * 260) + 'px';
+    enemy.style.top = '0px'; // Asetetaan viholliselle alkuperäinen top-arvo
     gameArea.appendChild(enemy);
     enemies.push(enemy);
 }
@@ -28,7 +29,7 @@ function createEnemy() {
 function moveEnemies() {
     enemies.forEach((enemy, index) => {
         let enemyTop = parseInt(enemy.style.top);
-        if (enemyTop > 500) {
+        if (enemyTop > 500) { // Jos vihollinen menee pelialueen ulkopuolelle
             gameArea.removeChild(enemy);
             enemies.splice(index, 1);
             score++;
@@ -64,3 +65,4 @@ function gameLoop() {
 
 setInterval(createEnemy, 1000);
 gameLoop();
+
